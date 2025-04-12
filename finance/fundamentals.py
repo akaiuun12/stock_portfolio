@@ -79,7 +79,7 @@ def plot_annual_net_income(df_net_income,
         fig, ax = plt.subplots(figsize=(12, 6))
 
     ax.bar(df['year'].astype(str), df['net_income'], color=color)
-    ax.set_title(f'{ticker}\n{title}', fontsize=14)
+    ax.set_title(f'{ticker}\n{title}')
     ax.set_xlabel('Year')
     ax.set_ylabel(ylabel)
     ax.set_yticks(yticks)
@@ -120,7 +120,7 @@ def plot_net_income_growth(df_net_income,
         fig, ax = plt.subplots(figsize=(12, 6))
 
     sns.barplot(data=df, x='year', y='net_income_growth', color=color, ax=ax)
-    ax.set_title(f'{ticker}\n{title}\n{description}', fontsize=12)
+    ax.set_title(f'{ticker}\n{title}\n{description}')
     ax.set_xlabel('Year')
     ax.set_ylabel('Income Growth (%)')
     ax.set_yticks(yticks)
@@ -130,73 +130,101 @@ def plot_net_income_growth(df_net_income,
 
 # 4. Annual Dividends
 def annual_dividends(facts):
-    div_keys = ['PaymentsOfDividends', 'PaymentsOfDividendsCommonStock', 'PaymentsOfDividendsPreferredStock']
-    div_var = next((key for key in div_keys if key in facts['us-gaap']), None)
+    # Preferred order of dividend-related keys
+    div_keys = [
+        'PaymentsOfDividends',
+        'PaymentsOfDividendsCommonStock',
+        'PaymentsOfDividendsPreferredStock'
+    ]
+    
+    # Find the first available dividend key
+    div_var = next((key for key in div_keys if key in facts.get('us-gaap', {})), None)
 
+    # Return empty if no valid key
     if not div_var:
         return pd.DataFrame(), None, None
 
-    date = []
-    dividends = []
+    entries = facts['us-gaap'][div_var]['units'].get('USD', [])
+    
+    rows = []
+    for report in entries:
+        frame = report.get('frame', '')
+        if len(frame) == 6:
+            rows.append({
+                'date': pd.to_datetime(report['end']),
+                'dividends': report['val']
+            })
 
-    for report in facts['us-gaap'][div_var]['units']['USD']:
-        try:
-            if len(report['frame']) == 6:
-                date.append(report['end'])
-                dividends.append(report['val'])
-        except:
-            continue
+    if not rows:
+        return pd.DataFrame(), None, None
 
-    df = pd.DataFrame({'date': date, 'dividends': dividends})
-    df['date'] = pd.to_datetime(df['date'])
+    df = pd.DataFrame(rows)
     df['year'] = df['date'].dt.year
 
-    return df.sort_values('year'), facts['us-gaap'][div_var].get('label', ''), facts['us-gaap'][div_var].get('description', '')
+    label = facts['us-gaap'][div_var].get('label', '')
+    description = facts['us-gaap'][div_var].get('description', '')
+
+    return df.sort_values('year'), label, description
 
 
-def plot_annual_dividends(df_dividends, ticker='TICKER', title='Annual Dividends', description='', ymin=None, ymax=None, ystep=None, color='royalblue'):
+# 5. Plot Annual Dividends
+def plot_annual_dividends(df_dividends, ticker='TICKER', title='Annual Dividends',
+                          ymin=None, ymax=None, ystep=None, unit='auto',
+                          color='royalblue', ax=None):
     df = df_dividends.copy()
-    if 'year' not in df:
-        df['year'] = pd.to_datetime(df['date']).dt.year
+    df['year'] = pd.to_datetime(df['date']).dt.year
+    max_val = df['dividends'].max()
 
-    if ymin is None:
-        ymin = 0
-    if ymax is None:
-        ymax = df['dividends'].max() * 1.2
-    if ystep is None:
-        ystep = (ymax - ymin) / 5
+    scale, ylabel, label_format = get_unit_formatting(unit, max_val)
 
-    yticks = np.arange(ymin, ymax, ystep)
+    if ymin is None: ymin = 0
+    if ymax is None: ymax = max_val * 1.2
+    if ystep is None: ystep = (ymax - ymin) / 5
+    yticks = np.arange(ymin, ymax + ystep, ystep)
 
-    plt.figure(figsize=(12, 6))
-    plt.bar(df['year'].astype(str), df['dividends'], color=color)
-    plt.title(f'{ticker}\n{title}\n{description}', fontsize=12)
-    plt.xlabel('Year')
-    plt.ylabel('USD ($)')
-    plt.yticks(yticks, labels=[f'{int(x/1e6)}M' for x in yticks])
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+    ax.bar(df['year'].astype(str), df['dividends'], color=color, alpha=0.8)
+    ax.set_title(f'{ticker}\n{title}')
+    ax.set_xlabel('Year')
+    ax.set_ylabel(ylabel)
+    ax.set_yticks(yticks)
+    ax.set_yticklabels([label_format(x) for x in yticks])
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
 
 
-def plot_dividends_growth(df_dividends, ticker='TICKER', title='Dividend Growth', description='', ymin=None, ymax=None, ystep=None, color='royalblue'):
+# 6. Plot Dividends Growth
+def plot_dividends_growth(df_dividends, ticker='TICKER', title='Dividends Growth',
+                          ymin=None, ymax=None, ystep=10,
+                          color='royalblue', ax=None):
     df = df_dividends.copy()
     df['year'] = pd.to_datetime(df['date']).dt.year
     df['dividends_growth'] = df['dividends'].pct_change() * 100
+    df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=['dividends_growth'])
 
-    if ymin is None:
-        ymin = df['dividends_growth'].min() - 10
-    if ymax is None:
-        ymax = df['dividends_growth'].max() + 10
-    if ystep is None:
-        ystep = (ymax - ymin) / 5
+    min_val = df['dividends_growth'].min()
+    max_val = df['dividends_growth'].max()
+    abs_max = max(abs(min_val), abs(max_val))
 
-    plt.figure(figsize=(12, 6))
-    sns.barplot(data=df, x='year', y='dividends_growth', color=color)
-    plt.title(f'{ticker}\n{title}\n{description}', fontsize=12)
-    plt.ylabel('Dividends Growth (%)')
-    plt.yticks(np.arange(ymin, ymax, ystep))
-    plt.ylim(ymin, ymax)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
+    if ymin is None and ymax is None:
+        ymax = np.ceil(abs_max / ystep) * ystep
+        ymin = -ymax
+    elif ymin is None:
+        ymin = -ymax
+    elif ymax is None:
+        ymax = -ymin
+
+    yticks = np.arange(ymin, ymax + ystep, ystep)
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+    sns.barplot(data=df, x='year', y='dividends_growth', color=color, ax=ax)
+    ax.axhline(0, color='black', linestyle='--', linewidth=1)
+    ax.set_title(f'{ticker}\n{title}')
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Growth (%)')
+    ax.set_yticks(yticks)
+    ax.set_ylim((ymin, ymax))
+    ax.grid(axis='y', linestyle='--', alpha=0.7)

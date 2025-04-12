@@ -15,11 +15,14 @@ Welcome to my personal stock portfolio tracker — a data-driven project built w
 ## 📂 Repository Structure
 
 ```bash
-.
-├── edgar.ipynb               # Notebook for SEC EDGAR data analysis
-├── edgar.py                  # Python File for SEC EDGAR data analysis
-├── portfolio.ipynb           # Main notebook for portfolio analysis
-├── README.md                 # Project overview and instructions
+stock_portfolio/
+│
+├── main_analysis.ipynb          ← 🧪 main notebook
+│
+└── finance/                     ← 📦 Python module (with __init__.py)
+    ├── __init__.py              
+    ├── fundamentals.py          ← For EDGAR (sec-edgar-api)
+    └── prices.py                ← For yfinance logic
 ```
 
 <!--

@@ -1,12 +1,9 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import yfinance as yf
 
-def historical_price(ticker, start=None, end=None, column='Close', scale='linear'):
+def historical_price(ticker, start=None, end=None, column='Close', scale='linear', ax=None):
     # 주가 다운로드
     price = yf.download(ticker)
-
-    # column로 해당 열 선택
     data = price[column]
 
     # 기간 필터링
@@ -16,19 +13,25 @@ def historical_price(ticker, start=None, end=None, column='Close', scale='linear
         data = data.loc[start:]
     elif end is not None:
         data = data.loc[:end]
-    
-    # 그래프 출력
-    plt.figure(figsize=(10, 4))
-    plt.plot(data, color='darkslategray')
-    plt.title(f"{ticker} - {column} Price")
-    plt.xlabel("Date")
-    plt.ylabel("Price")
-    plt.grid(True)
 
-    # 로그 스케일 적용
+    # If no ax provided, create one
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(10, 4))
+
+    # Plot
+    ax.plot(data, color='darkslategray')
+    ax.set_title(f"{ticker} - {column} Price")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Price")
+    ax.grid(True)
+
     if scale == 'log':
-        plt.yscale('log')
+        ax.set_yscale('log')
+        ax.set_title(f"{ticker} - {column} Price in Log Scale")
 
-    plt.show()
+    # Only show the plot if used standalone
+    if ax is None:
+        plt.tight_layout()
+        plt.show()
 
     return data
