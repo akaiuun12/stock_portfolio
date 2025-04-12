@@ -170,7 +170,7 @@ def annual_dividends(facts):
 # 5. Plot Annual Dividends
 def plot_annual_dividends(df_dividends, ticker='TICKER', title='Annual Dividends',
                           ymin=None, ymax=None, ystep=None, unit='auto',
-                          color='royalblue', ax=None):
+                          color='darkslategray', ax=None):
     df = df_dividends.copy()
     df['year'] = pd.to_datetime(df['date']).dt.year
     max_val = df['dividends'].max()
@@ -197,7 +197,7 @@ def plot_annual_dividends(df_dividends, ticker='TICKER', title='Annual Dividends
 # 6. Plot Dividends Growth
 def plot_dividends_growth(df_dividends, ticker='TICKER', title='Dividends Growth',
                           ymin=None, ymax=None, ystep=10,
-                          color='royalblue', ax=None):
+                          color='darkslategray', ax=None):
     df = df_dividends.copy()
     df['year'] = pd.to_datetime(df['date']).dt.year
     df['dividends_growth'] = df['dividends'].pct_change() * 100
@@ -221,7 +221,6 @@ def plot_dividends_growth(df_dividends, ticker='TICKER', title='Dividends Growth
         fig, ax = plt.subplots(figsize=(12, 6))
 
     sns.barplot(data=df, x='year', y='dividends_growth', color=color, ax=ax)
-    ax.axhline(0, color='black', linestyle='--', linewidth=1)
     ax.set_title(f'{ticker}\n{title}')
     ax.set_xlabel('Year')
     ax.set_ylabel('Growth (%)')
