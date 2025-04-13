@@ -35,3 +35,10 @@ def historical_price(ticker, start=None, end=None, column='Close', scale='linear
         plt.show()
 
     return data
+
+def get_market_cap(ticker):
+    price = yf.download(ticker)
+    shares = yf.Ticker(ticker).info['sharesOutstanding']
+    market_cap = price['Close'] * shares
+    
+    return market_cap

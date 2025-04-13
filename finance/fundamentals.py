@@ -168,7 +168,7 @@ def plot_annual_dividends(df_dividends, ticker='TICKER', title='Annual Dividends
     if ax is None:
         fig, ax = plt.subplots(figsize=(12, 6))
 
-    ax.bar(df['year_str'], df['dividends_scaled'], color=color, alpha=0.8)
+    ax.bar(df['year_str'], df['dividends_scaled'], color=color)
     ax.set_title(f'{ticker}\n{title}')
     ax.set_xlabel('Year')
     ax.set_ylabel(ylabel)
@@ -204,7 +204,7 @@ def plot_dividends_growth(df_dividends, ticker='TICKER', title='Dividends Growth
     if ax is None:
         fig, ax = plt.subplots(figsize=(12, 6))
 
-    ax.bar(df['year_str'], df['dividends_growth'], color=color, alpha=0.8)
+    ax.bar(df['year_str'], df['dividends_growth'], color=color)
     ax.set_title(f'{ticker}\n{title}')
     ax.set_xlabel('Year')
     ax.set_ylabel('Growth (%)')

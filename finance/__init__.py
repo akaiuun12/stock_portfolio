@@ -6,4 +6,7 @@ from .fundamentals import (
 from .edgar_client import (
     get_facts
 )
-from .prices import historical_price
+from .prices import (
+    historical_price, get_market_cap
+)
+
