@@ -4,9 +4,6 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from sec_edgar_api import EdgarClient
-edgar = EdgarClient(user_agent="akaiuun12@gmail.com")
-
 # 0. Helper Function
 def get_unit_formatting(unit, max_val):
     units = {
@@ -130,41 +127,33 @@ def plot_net_income_growth(df_net_income,
 
 # 4. Annual Dividends
 def annual_dividends(facts):
-    # Preferred order of dividend-related keys
     div_keys = [
         'PaymentsOfDividends',
         'PaymentsOfDividendsCommonStock',
         'PaymentsOfDividendsPreferredStock'
     ]
-    
-    # Find the first available dividend key
-    div_var = next((key for key in div_keys if key in facts.get('us-gaap', {})), None)
 
-    # Return empty if no valid key
+    # Find matching key
+    div_var = next((key for key in div_keys if key in facts.get('us-gaap', {})), None)
     if not div_var:
         return pd.DataFrame(), None, None
 
-    entries = facts['us-gaap'][div_var]['units'].get('USD', [])
-    
-    rows = []
-    for report in entries:
-        frame = report.get('frame', '')
-        if len(frame) == 6:
-            rows.append({
-                'date': pd.to_datetime(report['end']),
-                'dividends': report['val']
-            })
+    date = []
+    dividends = []
 
-    if not rows:
-        return pd.DataFrame(), None, None
+    for report in facts['us-gaap'][div_var]['units'].get('USD', []):
+        try:
+            if len(report['frame']) == 6:
+                date.append(pd.to_datetime(report['end']))
+                dividends.append(report['val'])
+        except:
+            continue
 
-    df = pd.DataFrame(rows)
-    df['year'] = df['date'].dt.year
+    df_dividends = pd.DataFrame({'date': date, 'dividends': dividends})
+    df_dividends['year'] = df_dividends['date'].dt.year
 
-    label = facts['us-gaap'][div_var].get('label', '')
-    description = facts['us-gaap'][div_var].get('description', '')
+    return df_dividends.sort_values('year'), facts['us-gaap'][div_var].get('label', ''), facts['us-gaap'][div_var].get('description', '')
 
-    return df.sort_values('year'), label, description
 
 
 # 5. Plot Annual Dividends
