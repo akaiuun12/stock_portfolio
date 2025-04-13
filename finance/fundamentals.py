@@ -132,63 +132,58 @@ def annual_dividends(facts):
         'PaymentsOfDividendsCommonStock',
         'PaymentsOfDividendsPreferredStock'
     ]
-
-    # Find matching key
     div_var = next((key for key in div_keys if key in facts.get('us-gaap', {})), None)
     if not div_var:
         return pd.DataFrame(), None, None
 
-    date = []
-    dividends = []
-
+    date, dividends = [], []
     for report in facts['us-gaap'][div_var]['units'].get('USD', []):
         try:
             if len(report['frame']) == 6:
-                date.append(pd.to_datetime(report['end']))
+                date.append(report['end'])
                 dividends.append(report['val'])
         except:
             continue
 
     df_dividends = pd.DataFrame({'date': date, 'dividends': dividends})
+    df_dividends['date'] = pd.to_datetime(df_dividends['date'])
     df_dividends['year'] = df_dividends['date'].dt.year
 
     return df_dividends.sort_values('year'), facts['us-gaap'][div_var].get('label', ''), facts['us-gaap'][div_var].get('description', '')
 
 
-
 # 5. Plot Annual Dividends
 def plot_annual_dividends(df_dividends, ticker='TICKER', title='Annual Dividends',
-                          ymin=None, ymax=None, ystep=None, unit='auto',
-                          color='darkslategray', ax=None):
+                          unit='auto', color='darkslategray', ax=None):
+    if df_dividends is None or df_dividends.empty:
+        print(f"[{ticker}] No dividend data available. Skipping annual dividend plot.")
+        return
+
     df = df_dividends.copy()
-    df['year'] = pd.to_datetime(df['date']).dt.year
-    max_val = df['dividends'].max()
+    df['year_str'] = df['year'].astype(str)
 
-    scale, ylabel, label_format = get_unit_formatting(unit, max_val)
-
-    if ymin is None: ymin = 0
-    if ymax is None: ymax = max_val * 1.2
-    if ystep is None: ystep = (ymax - ymin) / 5
-    yticks = np.arange(ymin, ymax + ystep, ystep)
+    scale, ylabel, label_format = get_unit_formatting(unit, df['dividends'].max())
+    df['dividends_scaled'] = df['dividends'] / scale
 
     if ax is None:
         fig, ax = plt.subplots(figsize=(12, 6))
 
-    ax.bar(df['year'].astype(str), df['dividends'], color=color, alpha=0.8)
+    ax.bar(df['year_str'], df['dividends_scaled'], color=color, alpha=0.8)
     ax.set_title(f'{ticker}\n{title}')
     ax.set_xlabel('Year')
     ax.set_ylabel(ylabel)
-    ax.set_yticks(yticks)
-    ax.set_yticklabels([label_format(x) for x in yticks])
     ax.grid(axis='y', linestyle='--', alpha=0.7)
 
 
 # 6. Plot Dividends Growth
 def plot_dividends_growth(df_dividends, ticker='TICKER', title='Dividends Growth',
-                          ymin=None, ymax=None, ystep=10,
-                          color='darkslategray', ax=None):
+                          ymin=None, ymax=None, ystep=10, color='darkslategray', ax=None):
+    if df_dividends is None or df_dividends.empty:
+        print(f"[{ticker}] No dividend data available. Skipping dividends growth plot.")
+        return
+
     df = df_dividends.copy()
-    df['year'] = pd.to_datetime(df['date']).dt.year
+    df['year_str'] = df['year'].astype(str)
     df['dividends_growth'] = df['dividends'].pct_change() * 100
     df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=['dividends_growth'])
 
@@ -209,7 +204,7 @@ def plot_dividends_growth(df_dividends, ticker='TICKER', title='Dividends Growth
     if ax is None:
         fig, ax = plt.subplots(figsize=(12, 6))
 
-    sns.barplot(data=df, x='year', y='dividends_growth', color=color, ax=ax)
+    ax.bar(df['year_str'], df['dividends_growth'], color=color, alpha=0.8)
     ax.set_title(f'{ticker}\n{title}')
     ax.set_xlabel('Year')
     ax.set_ylabel('Growth (%)')
