@@ -41,6 +41,7 @@ stock_portfolio/
 │
 └── finance/                ← Python module
 │   ├── __init__.py                      
+│   ├── edgar_client.py     ← Basic info            (using sec-edgar-api)
 │   ├── fundamentals.py     ← Net income, dividends (using sec-edgar-api)
 │   └── prices.py           ← Historical price data (using yfinance)
 │
