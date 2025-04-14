@@ -1,75 +1,51 @@
 # 📈 Personal Stock Portfolio Tracker
 
-Welcome to my personal stock portfolio tracker — a data-driven project built with **Python** and **Jupyter Notebook** to monitor and analyze individual stocks in my investment portfolio. This repository includes tools for fetching financial data, visualizing key metrics, and tracking performance over time.
+![alt text](images/image.png)
+
+Welcome to my personal stock portfolio tracker — a data-driven project built with **Python** and **Jupyter Notebook** to monitor and analyze individual stocks in my investment portfolio. 
+
+I have made this repository to track long-term performance of each stocks. Google and Yahoo finance only showed the net income of recent 5 years.
+
+This repository gets data from SEC EDGAR (using sec-edgar-api), and tracks net income history over decades. 
+
+This repository includes tools for historical financial data, visualizing key metrics, and tracking performance over time.
 
 ---
 
 ## 🔧 Features
 
-- 📊 Data visualization of individual stocks
-- 💡 Fundamental analysis: earnings, revenue, valuation metrics
-- 🧠 Strategy backtests (work in progress)
+- Historical Net Income and Growth Rate (%)
+![alt text](images/image.png)
+
+- Historical Price and Price in Log Scale
+![alt text](images/image-1.png)
+
+- Dividends History
+![alt text](images/image-2.png)
+
+- Historical P/E Ratio (based on Annual Earnings)
+![alt text](images/image-3.png)
 
 ---
 
 ## 📂 Repository Structure
 
+If you want your own analysis, copy notebook from analysis folder and just simply change a ticker!
+
 ```bash
 stock_portfolio/
 │
-├── main_analysis.ipynb          ← 🧪 main notebook
+├── README.md               ← This file!
+├── .gitignore              
+├── requirements.txt        
 │
-└── finance/                     ← 📦 Python module (with __init__.py)
-    ├── __init__.py              
-    ├── fundamentals.py          ← For EDGAR (sec-edgar-api)
-    └── prices.py                ← For yfinance logic
+└── finance/                ← Python module
+│   ├── __init__.py                      
+│   ├── fundamentals.py     ← Net income, dividends (using sec-edgar-api)
+│   └── prices.py           ← Historical price data (using yfinance)
+│
+└── analysis/               ← Analysis notebook for individual stocks
+    ├── AAPL_2025.ipynb     
+    │   ...
+    └── V_2025.ipynb
 ```
-
-<!--
-## 🚀 Getting Started
-1. Clone the repository
-bash```
-git clone https://github.com/akaiuun12/stock_portfolio.git
-cd stock_portfolio
-```
-
-2. Set up the environment
-It's recommended to use a virtual environment:
-
-bash
-복사
-편집
-python -m venv venv
-source venv/bin/activate     # On Windows: venv\Scripts\activate
-3. Install dependencies
-bash
-복사
-편집
-pip install -r requirements.txt
-Note: Ensure that requirements.txt is present with all necessary dependencies listed.
-
-4. Run the Jupyter notebooks
-bash
-복사
-편집
-jupyter notebook
-Open portfolio.ipynb to explore the portfolio analysis.
--->
-
-<!--
-## 📦 Dependencies
-Key libraries used in this project:
-
-- pandas, numpy
-- matplotlib, seaborn, plotly
-- yfinance (for fetching stock data)
--->
-
-## 🧑‍💻 Author
-Built by akaiuun12 — feel free to reach out for collaboration or feedback!
-
-GitHub: @akaiuun12
-
-## 📜 License
-This project is licensed under the MIT License.
- 
