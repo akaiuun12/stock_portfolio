@@ -85,8 +85,7 @@ def plot_annual_net_income(df_net_income,
 
 
 # 3. Plot Net Income Growth (%) 
-# BUGS-TO-SOLVE: yticks doesn't work as expected
-# BUGS-TO-SOLVE: If net income turns from minus to plus, it shows minus growth rate.
+# BUG FIX: handle sign flips and remove invalid growth values
 def plot_net_income_growth(df_net_income, 
                            ticker='TICKER', 
                            title='Net Income Growth', 
@@ -96,7 +95,8 @@ def plot_net_income_growth(df_net_income,
                            ax=None):
     df = df_net_income.copy()
     df['year'] = pd.to_datetime(df['date']).dt.year
-    df['net_income_growth'] = df['net_income'].diff() / df['net_income'].shift().abs() * 100    # sign-aware growth
+    df['net_income_growth'] = (df['net_income'].diff() / df['net_income'].shift().abs()) * 100
+    df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=['net_income_growth'])
 
     # Determine y-axis limits if not provided
     min_val = df['net_income_growth'].min()
