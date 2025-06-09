@@ -4,7 +4,7 @@
 
 Welcome to my personal stock portfolio tracker — a data-driven project built with **Python** and **Jupyter Notebook** to monitor and analyze individual stocks in my investment portfolio. 
 
-I have made this repository to track long-term performance of each stocks. Google and Yahoo finance only showed the net income of recent 5 years.
+I have made this repository to track long-term performance of each stock. Google and Yahoo finance only showed the net income of recent 5 years.
 
 This repository gets data from SEC EDGAR (using sec-edgar-api), and tracks net income history over decades. 
 
