@@ -50,3 +50,13 @@ stock_portfolio/
     │   ...
     └── V_2025.ipynb
 ```
+
+## 🚀 Run as Web Application
+
+To start the Streamlit app:
+
+```bash
+streamlit run streamlit_app.py
+```
+
+This provides an interactive interface to explore stock metrics such as net income, dividends, historical prices and P/E ratio for any ticker symbol.
