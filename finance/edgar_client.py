@@ -8,9 +8,8 @@ edgar = EdgarClient(user_agent="Your Name your.email@example.com")
 with open("cik_dict.json", "r") as f:
     CIK = json.load(f)
 
-
 def get_facts(ticker):
-    return edgar.get_company_facts(cik=CIK[ticker.upper()])['facts']
-
-
-# %%
+    if CIK.get(ticker.upper()) is None:
+        return
+    else:
+        return edgar.get_company_facts(cik=CIK[ticker.upper()])

@@ -25,6 +25,22 @@ def get_unit_formatting(unit, max_val):
 
     return units[unit]  # returns (scale, ylabel, label_format)
 
+def business_growth_rate(row):
+    current = row['net_income']
+    previous = row['net_income_prev']
+    if pd.isna(previous) or previous == 0:
+        return np.nan
+    if (previous < 0 and current > 0) or (previous > 0 and current < 0):
+        return (current - previous) / abs(previous) * 100
+    else:
+        return (current - previous) / previous * 100
+
+def calculate_net_income_growth(df_net_income):
+    df_growth = df_net_income.copy()
+    df_growth['net_income_prev'] = df_growth['net_income'].shift(1)
+    df_growth['net_income_growth'] = df_growth.apply(business_growth_rate, axis=1)
+    return df_growth
+
 # 1. Annual Net Income
 def annual_net_income(facts): 
     if 'NetIncomeLoss' in facts['us-gaap']:
