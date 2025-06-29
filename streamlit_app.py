@@ -39,7 +39,7 @@ st.set_page_config(
     page_title="Long-Term Stock Tracker",
     page_icon="📈",
     layout="centered",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS for better styling
@@ -114,6 +114,10 @@ st.markdown(r"""
     unsafe_allow_html=True
 )
 
+custom_ticker = st.text_input("Enter ticker symbol", placeholder="e.g., META, NFLX", key="custom_ticker")
+
+st.markdown("---")
+
 # --- Sidebar for Controls ---
 with st.sidebar:
     st.header("🎯 Stock Selection")
@@ -135,11 +139,7 @@ with st.sidebar:
         ticker6 = st.button("NVDA", key="btn_nvda")
         ticker7 = st.button("V", key="btn_v")
         ticker8 = st.button("KO", key="btn_ko")
-    
-    # Custom ticker input
-    st.subheader("Custom Ticker")
-    custom_ticker = st.text_input("Enter ticker symbol", placeholder="e.g., META, NFLX", key="custom_ticker")
-    
+
     # Determine selected ticker
     selected_ticker = None
     if ticker1: selected_ticker = "AAPL"
