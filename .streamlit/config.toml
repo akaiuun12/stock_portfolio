@@ -1,0 +1,26 @@
+# Streamlit Configuration for Stock Portfolio Tracker
+# This file optimizes the app for deployment and provides a professional theme
+
+[server]
+# Run in headless mode (required for deployment servers)
+headless = true
+# Disable CORS for simpler deployment (not needed for web apps)
+enableCORS = false
+# Disable CSRF protection to simplify deployment
+enableXsrfProtection = false
+# Limit file uploads to 200MB to prevent server overload
+maxUploadSize = 200
+
+[browser]
+# Disable usage statistics collection for privacy
+gatherUsageStats = false
+
+[theme]
+# Professional blue color for buttons and highlights
+primaryColor = "#1f77b4"
+# Clean white background for main content
+backgroundColor = "#ffffff"
+# Light gray for sidebars and containers
+secondaryBackgroundColor = "#f0f2f6"
+# Dark gray text for good readability
+textColor = "#262730" 
