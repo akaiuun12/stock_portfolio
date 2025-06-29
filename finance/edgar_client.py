@@ -1,8 +1,10 @@
 import json
+import os
 from sec_edgar_api import EdgarClient
 
-# Initialize client once per session
-edgar = EdgarClient(user_agent="Your Name your.email@example.com")
+# Initialize client once per session with configurable user agent
+user_agent = os.getenv('SEC_EDGAR_USER_AGENT', 'Stock Portfolio App your.email@example.com')
+edgar = EdgarClient(user_agent=user_agent)
 
 # Example CIK dictionary (extend or load from file)
 with open("cik_dict.json", "r") as f:
